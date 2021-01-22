@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package notes.v1;
+option go_package = "github.com/bbengfort/notes/v1";
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        title: "Notes";
+        version: "1.0";
+        contact: {
+            name: "bbengfort";
+            url: "https://github.com/bbengfort/notes";
+            email: "info@bengfort.com";
+        };
+        license: {
+            name: "BSD 3-Clause License";
+            url: "https://github.com/bbengfort/notes/LICENSE";
+        };
+    };
+
+    schemes: HTTP;
+    schemes: HTTPS;
+    consumes: "application/json";
+    produces: "application/json";
+};
+
+service NoteService {
+    rpc Fetch(NoteFilter) returns (Notebook) {
+        option (google.api.http) = {
+            get: "/api/v1/notes"
+        };
+    };
+    rpc Create(Note) returns (Notebook) {
+        option (google.api.http) = {
+            post: "/api/v1/notes"
+            body: "*"
+        };
+    };
+}
+
+
+message Note {
+    uint64 id = 1;
+    string timestamp = 2;
+    string author = 3;
+    string text = 4;
+    bool private = 5;
+}
+
+message NoteFilter {
+    repeated uint64 ids = 1;
+    repeated string author = 2;
+    string before = 3;
+    string after = 4;
+    bool private = 5;
+}
+
+message Notebook {
+    Error error = 1;
+    repeated Note notes = 2;
+}
+
+message Error {
+    uint32 code = 1;
+    string message = 2;
+}
